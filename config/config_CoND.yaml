@@ -1,10 +1,8 @@
-# ─────────────────────────────────────────────────────────────
 # Neuronal Morphology Pipeline — CoND Dataset Configuration
 # Dataset: funalab/CoND (SH-SY5Y, phase contrast)
 # Modes (set ml.task below to switch):
 #   "classification" — binary diff vs undiff, flat folder structure
 #   "regression"     — continuous day 0→22, time_course structure
-# ─────────────────────────────────────────────────────────────
 
 pipeline:
   name: "neuronal-morphology-pipeline"
@@ -12,7 +10,7 @@ pipeline:
   phase: "CoND"
   dataset: "funalab/CoND"
 
-# ── Paths ──────────────────────────────────────────────────────
+# Paths
 paths:
   raw_dir:           "data/CoND"                # classification: differentiated/ + undifferentiated/
   time_course_dir:   "data/CoND/time_course"    # regression: ratio_data_dishX/Yday/
@@ -22,13 +20,13 @@ paths:
   plots_dir:         "outputs/plots_CoND"
   results_dir:       "outputs/results_CoND"
 
-# ── Module 1 — Preprocessing ───────────────────────────────────
+# Module 1 — Preprocessing
 preprocessing:
   target_size: [200, 200]     # CoND images are natively 200x200
   grayscale: true
   normalize: true
 
-# ── Module 3 — Feature Extraction ──────────────────────────────
+# Module 3 — Feature Extraction
 feature_extraction:
   tool: "scikit-image"
   features:
@@ -39,21 +37,21 @@ feature_extraction:
     - neurite_density     # neurite_length / cell area
   threshold_method: "otsu"
 
-# ── Module 5 — Pairing ─────────────────────────────────────────
+# Module 5 — Pairing
 # classification: random synthetic cross-sectional pairing
 # regression:     real longitudinal pairing (same dish, 0day → Xday)
 pairing:
   random_seed: 42
   pair_type: "synthetic_cross_sectional"   # classification mode only
 
-# ── Module 7 — Augmentation ────────────────────────────────────
+# Module 7 — Augmentation
 augmentation:
   enabled: true
   alpha: 0.05
   target_rows: 7000
   random_seed: 42
 
-# ── Module 8 — ML Training ─────────────────────────────────────
+# Module 8 — ML Training
 # Switch mode by changing task:
 #   "classification" → XGBClassifier / RandomForestClassifier / SVC → Acc/F1/AUC
 #   "regression"     → XGBRegressor  / RandomForestRegressor  / SVR → RMSE/MAE/R²
@@ -71,7 +69,7 @@ ml:
     - mae
     - r2
 
-# ── Module 9 — Interpretability ────────────────────────────────
+# Module 9 — Interpretability
 interpretability:
   shap_models:
     - xgboost

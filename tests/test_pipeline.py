@@ -1,6 +1,6 @@
 """
 tests/test_pipeline.py
-──────────────────────
+
 Unit tests for the Neuronal Morphology Pipeline utility functions.
 
 Run from the project root with:
@@ -13,7 +13,7 @@ import cv2
 from pathlib import Path
 import sys
 
-# ── Path setup ────────────────────────────────────────────────────────────────
+# Path setup
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from pipeline_utils import (
     load_image,
@@ -22,8 +22,7 @@ from pipeline_utils import (
     extract_features_from_array,
 )
 
-
-# ── Fixtures ──────────────────────────────────────────────────────────────────
+# Fixtures
 
 @pytest.fixture
 def synthetic_image_path(tmp_path):
@@ -38,7 +37,6 @@ def synthetic_image_path(tmp_path):
     cv2.imwrite(str(path), img)
     return path
 
-
 @pytest.fixture
 def synthetic_uint8_array():
     """Synthetic uint8 numpy array with the same structure as above."""
@@ -50,8 +48,7 @@ def synthetic_uint8_array():
     cv2.line(img, (140, 102),(100, 118), 210, 3)
     return img
 
-
-# ── T-01: load_image returns valid float32 array in [0, 1] ───────────────────
+# T-01: load_image returns valid float32 array in [0, 1]
 
 def test_load_image_returns_valid_array(synthetic_image_path):
     """T-01: load_image returns a float32 ndarray with all values in [0, 1]."""
@@ -62,8 +59,7 @@ def test_load_image_returns_valid_array(synthetic_image_path):
     assert img.min() >= 0.0
     assert img.max() <= 1.0
 
-
-# ── T-02: load_image raises ValueError for a missing file ────────────────────
+# T-02: load_image raises ValueError for a missing file
 
 def test_load_image_raises_for_missing_file(tmp_path):
     """T-02: load_image raises ValueError when the file path does not exist."""
@@ -71,8 +67,7 @@ def test_load_image_raises_for_missing_file(tmp_path):
     with pytest.raises(ValueError):
         load_image(missing)
 
-
-# ── T-03: preprocess_image returns correct dtype and shape ───────────────────
+# T-03: preprocess_image returns correct dtype and shape
 
 def test_preprocess_image_returns_correct_shape(synthetic_image_path):
     """T-03: preprocess_image returns a uint8 array with the requested dimensions."""
@@ -81,8 +76,7 @@ def test_preprocess_image_returns_correct_shape(synthetic_image_path):
     assert result.dtype == np.uint8
     assert result.shape == (200, 200)
 
-
-# ── T-04: CLAHE preprocessing modifies pixel values ─────────────────────────
+# T-04: CLAHE preprocessing modifies pixel values
 
 def test_preprocess_image_changes_contrast(synthetic_image_path):
     """T-04: CLAHE preprocessing produces output that differs from the raw input."""
@@ -92,8 +86,7 @@ def test_preprocess_image_changes_contrast(synthetic_image_path):
         "Preprocessed image should differ from the raw input after CLAHE"
     )
 
-
-# ── T-05: segment_image returns a boolean array of matching shape ─────────────
+# T-05: segment_image returns a boolean array of matching shape
 
 def test_segment_image_returns_boolean_array(synthetic_uint8_array):
     """T-05: segment_image returns a boolean ndarray with the same spatial shape."""
@@ -103,8 +96,7 @@ def test_segment_image_returns_boolean_array(synthetic_uint8_array):
     assert binary.dtype == bool
     assert binary.shape == img_float.shape
 
-
-# ── T-06: extract_features_from_array returns exactly 5 feature keys ─────────
+# T-06: extract_features_from_array returns exactly 5 feature keys
 
 def test_extract_features_returns_five_keys(synthetic_uint8_array):
     """T-06: Feature extraction returns a dict with exactly the 5 expected keys."""
@@ -116,8 +108,7 @@ def test_extract_features_returns_five_keys(synthetic_uint8_array):
     }
     assert set(result["features"].keys()) == expected_keys
 
-
-# ── T-07: all extracted feature values are non-negative and not NaN ──────────
+# T-07: all extracted feature values are non-negative and not NaN
 
 def test_extract_features_returns_valid_values(synthetic_uint8_array):
     """T-07: All morphological feature values are non-negative and not NaN."""
@@ -127,8 +118,7 @@ def test_extract_features_returns_valid_values(synthetic_uint8_array):
         assert not np.isnan(val), f"{key} is NaN"
         assert val >= 0.0,        f"{key} is negative: {val}"
 
-
-# ── T-08: delta feature computation is arithmetically correct ────────────────
+# T-08: delta feature computation is arithmetically correct
 
 def test_delta_feature_computation_correctness():
     """T-08: Delta features equal after - before for each morphological feature."""
@@ -138,8 +128,7 @@ def test_delta_feature_computation_correctness():
     expected = np.array([20.0, -0.15, 25.0, 3.0, 0.15])
     np.testing.assert_allclose(delta, expected, rtol=1e-5)
 
-
-# ── T-09: augmentation does not contaminate the test split ───────────────────
+# T-09: augmentation does not contaminate the test split
 
 def test_augmentation_does_not_contaminate_test_split():
     """T-09: Gaussian jitter augmentation applied to training split only —

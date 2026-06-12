@@ -1,12 +1,12 @@
 """
 pipeline_utils.py
-─────────────────
+
 Shared utility functions for the Neuronal Morphology Pipeline.
 Imported by both pipeline_CoND.ipynb and app.py so that core logic
 lives in one place and stays in sync.
 
 Functions
----------
+
 load_image              — load any TIFF/PNG as grayscale float32 [0,1]
 _preprocess_and_save    — resize → CLAHE → Gaussian blur → save PNG
 segment_image           — background subtraction + watershed segmentation
@@ -24,8 +24,7 @@ from skimage.feature import peak_local_max
 from scipy.ndimage import gaussian_filter, convolve
 from scipy import ndimage as ndi
 
-
-# ── Image loading ─────────────────────────────────────────────────────────────
+# Image loading
 
 def load_image(path):
     """Load a PNG or TIFF file as a grayscale float32 array normalised to [0, 1].
@@ -41,7 +40,6 @@ def load_image(path):
     if img.max() > img.min():
         img = (img - img.min()) / (img.max() - img.min())
     return img
-
 
 def _preprocess_and_save(img_path, save_path, target_h, target_w):
     """Preprocess a single image and save as PNG.
@@ -64,7 +62,6 @@ def _preprocess_and_save(img_path, save_path, target_h, target_w):
     img_uint8 = cv2.GaussianBlur(img_uint8, (3, 3), 0)
     cv2.imwrite(str(save_path), img_uint8)
 
-
 def preprocess_image(img_path, target_h=200, target_w=200):
     """Preprocess and return image as uint8 numpy array (without saving).
 
@@ -79,8 +76,7 @@ def preprocess_image(img_path, target_h=200, target_w=200):
     img_uint8 = cv2.GaussianBlur(img_uint8, (3, 3), 0)
     return img_uint8
 
-
-# ── Segmentation ──────────────────────────────────────────────────────────────
+# Segmentation
 
 def segment_image(img_float):
     """Segment cells from background using local deviation + watershed.
@@ -112,8 +108,7 @@ def segment_image(img_float):
     labels     = watershed(-distance, markers, mask=binary)
     return labels > 0
 
-
-# ── Feature extraction ────────────────────────────────────────────────────────
+# Feature extraction
 
 def extract_features(image_path):
     """Extract 5 core morphological features from a preprocessed image.
@@ -163,7 +158,6 @@ def extract_features(image_path):
         'branch_count'     : float(branch_points),
         'neurite_density'  : float(neurite_density),
     }
-
 
 def extract_features_from_array(img_uint8):
     """Extract features directly from a uint8 numpy array (no file I/O).

@@ -27,14 +27,14 @@ from pathlib import Path
 
 warnings.filterwarnings('ignore')
 
-# ── Path setup — makes 'from src.pipeline_utils import ...' work ──────────────
+# Path setup — makes 'from src.pipeline_utils import ...' work
 PROJECT_ROOT = Path(__file__).resolve().parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.pipeline_utils import preprocess_image, extract_features_from_array
 
-# ── Constants ─────────────────────────────────────────────────────────────────
+# Constants
 MODEL_PATH   = PROJECT_ROOT / 'outputs/models_CoND/rf_model.pkl'
 SCALER_PATH  = PROJECT_ROOT / 'outputs/models_CoND/scaler.pkl'
 
@@ -48,7 +48,7 @@ DELTA_LABELS = [
     'Δ Neurite Length', 'Δ Branch Count', 'Δ Neurite Density',
 ]
 
-# ── Page config ───────────────────────────────────────────────────────────────
+# Page config
 st.set_page_config(
     page_title='Neuronal Differentiation Analyzer',
     page_icon='🧬',
@@ -72,7 +72,7 @@ st.markdown(
     'morphological changes drove the result.'
 )
 
-# ── Load model ────────────────────────────────────────────────────────────────
+# Load model
 @st.cache_resource(show_spinner='Loading model...')
 def load_model():
     if not MODEL_PATH.exists():
@@ -89,7 +89,7 @@ if model is None:
     )
     st.stop()
 
-# ── File upload ────────────────────────────────────────────────────────────────
+# File upload
 st.subheader('Step 1 — Upload Images')
 col_up1, col_up2 = st.columns(2)
 with col_up1:
@@ -109,7 +109,7 @@ if before_file is None or after_file is None:
     st.info('Upload both images above to continue.')
     st.stop()
 
-# ── Process uploaded images ───────────────────────────────────────────────────
+# Process uploaded images
 def process_upload(uploaded_file):
     """Save → preprocess → extract features + segmentation intermediates."""
     suffix = Path(uploaded_file.name).suffix or '.png'
@@ -132,7 +132,7 @@ if before_result is None or after_result is None:
     )
     st.stop()
 
-# ── 4-panel visualization ─────────────────────────────────────────────────────
+# 4-panel visualization
 def render_pipeline_panels(img_uint8, result, title):
     from skimage.color import label2rgb
 
@@ -173,7 +173,7 @@ render_pipeline_panels(before_img, before_result, 'Before — Preprocessing & Se
 st.markdown('**After image** — post-treatment morphology')
 render_pipeline_panels(after_img, after_result, 'After — Preprocessing & Segmentation')
 
-# ── Compute deltas ────────────────────────────────────────────────────────────
+# Compute deltas
 bf = before_result['features']
 af = after_result['features']
 deltas = {f'delta_{k}': af[k] - bf[k] for k in BASE_FEATURES}
@@ -193,7 +193,7 @@ with st.expander('Raw feature values (before / after / delta)'):
     })
     st.dataframe(raw_df, use_container_width=True, hide_index=True)
 
-# ── Prediction ────────────────────────────────────────────────────────────────
+# Prediction
 # Random Forest was trained on unscaled delta features (scaler was only for SVR)
 X = np.array([[deltas[c] for c in DELTA_COLS]])
 pred_day = float(np.clip(model.predict(X)[0], 0, 22))
@@ -214,7 +214,7 @@ with res_col2:
     else:
         st.success('**Late-stage differentiation** (day 12–22)  \nSubstantial neurite development and morphological remodelling.')
 
-# ── SHAP explanation ──────────────────────────────────────────────────────────
+# SHAP explanation
 st.subheader('Step 5 — Feature Contribution (SHAP)')
 st.markdown(
     'The bar chart shows how each Δ feature pushed the predicted day **higher** (red) or **lower** (blue).'
@@ -241,7 +241,7 @@ plt.tight_layout()
 st.pyplot(fig)
 plt.close(fig)
 
-# ── Feature importance legend ─────────────────────────────────────────────────
+# Feature importance legend
 with st.expander('What do the features mean?'):
     st.markdown("""
 | Feature | Meaning |
