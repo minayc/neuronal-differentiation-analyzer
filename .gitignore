@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+
+# Virtual environments
+env/
+venv/
+.env
+
+# macOS
+.DS_Store
+.AppleDouble
+
+# Jupyter
+.ipynb_checkpoints/
+
+# pytest
+.pytest_cache/
+
+# Generated plots and models (re-created by running the notebook)
+outputs/plots_CoND/
+outputs/plots/
+outputs/models_CoND/
+outputs/models/
+outputs/features_CoND/
+outputs/features/
+
+# Dataset (downloaded separately — not version-controlled)
+data/
