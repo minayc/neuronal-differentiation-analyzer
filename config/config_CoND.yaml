@@ -9,7 +9,7 @@
 pipeline:
   name: "neuronal-morphology-pipeline"
   version: "1.2-CoND"
-  phase: "CoND"               # prototype | CoND | full
+  phase: "CoND"
   dataset: "funalab/CoND"
 
 # ── Paths ──────────────────────────────────────────────────────
@@ -21,9 +21,6 @@ paths:
   models_dir:        "outputs/models_CoND"
   plots_dir:         "outputs/plots_CoND"
   results_dir:       "outputs/results_CoND"
-
-# NOTE: No patching section — CoND images are already 200x200 px
-# individual cells. Each image = one sample directly.
 
 # ── Module 1 — Preprocessing ───────────────────────────────────
 preprocessing:
@@ -47,12 +44,7 @@ feature_extraction:
 # regression:     real longitudinal pairing (same dish, 0day → Xday)
 pairing:
   random_seed: 42
-  pair_type: "synthetic_cross_sectional"   # used in classification mode
-  note: >
-    classification — random synthetic pairs (undiff→diff or undiff→undiff).
-    regression     — real longitudinal pairs (0day→Xday, same dish).
-    True within-sample pairs will be used when the experimental
-    Ag-CS NP dataset is available.
+  pair_type: "synthetic_cross_sectional"   # classification mode only
 
 # ── Module 7 — Augmentation ────────────────────────────────────
 augmentation:
@@ -69,7 +61,7 @@ ml:
   random_seed: 42
   test_size: 0.2
   cv_folds: 5
-  task: "regression"           # ← change to "classification" to run binary mode
+  task: "regression"           # or "classification"
   models:
     - xgboost
     - random_forest

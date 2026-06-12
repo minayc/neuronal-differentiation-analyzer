@@ -1,0 +1,24 @@
+name: Capstone
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - numpy=1.26
+  - pandas=2.1
+  - matplotlib=3.8
+  - seaborn=0.13
+  - scikit-learn=1.4
+  - scikit-image=0.22
+  - opencv=4.9
+  - pillow=10.2
+  - tifffile=2024.2
+  - pyyaml=6.0
+  - jupyter=1.0
+  - ipykernel=6.29
+  - notebook=7.1
+  - pytest>=7.0.0
+  - pip
+  - pip:
+      - xgboost==2.0.3
+      - shap==0.44.1

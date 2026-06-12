@@ -1,0 +1,4 @@
+model,R2_mean,R2_std
+XGBoost,-0.0901,0.0522
+Random Forest,0.0184,0.0577
+SVR,0.135,0.0751

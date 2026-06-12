@@ -1,0 +1,13 @@
+model,fold,R2
+XGBoost,1,-0.0433
+XGBoost,2,-0.048
+XGBoost,3,-0.0959
+XGBoost,4,-0.1731
+Random Forest,1,0.0595
+Random Forest,2,0.0848
+Random Forest,3,-0.0083
+Random Forest,4,-0.0623
+SVR,1,0.1198
+SVR,2,0.1923
+SVR,3,0.2092
+SVR,4,0.0187

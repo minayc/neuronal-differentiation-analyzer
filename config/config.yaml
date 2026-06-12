@@ -1,0 +1,75 @@
+# ─────────────────────────────────────────────────────────────
+# Neuronal Morphology Pipeline — Master Configuration
+# ─────────────────────────────────────────────────────────────
+
+pipeline:
+  name: "neuronal-morphology-pipeline"
+  version: "1.0-prototype"
+  phase: "prototype"
+
+# ── Paths ──────────────────────────────────────────────────────
+paths:
+  raw_dir:           "data/raw"
+  preprocessed_dir:  "data/preprocessed"
+  patches_dir:       "data/patches"
+  processed_dir:     "data/processed"
+  patch_manifest:    "patch_manifest.csv"
+  features_dir:      "outputs/features"
+  models_dir:        "outputs/models"
+  plots_dir:         "outputs/plots"
+  results_dir:       "outputs/results"
+
+# ── Module 1 — Preprocessing ───────────────────────────────────
+preprocessing:
+  target_size: [512, 512]     # all images resized to this (height, width)
+  grayscale: true             # convert to single-channel
+  normalize: true             # scale pixel intensities to [0, 1]
+
+# ── Module 2 — Patch Generation ────────────────────────────────
+patching:
+  grid_size: 3                # 3x3 = 9 patches per image
+
+# ── Module 3 — Feature Extraction ──────────────────────────────
+feature_extraction:
+  tool: "scikit-image"        # scikit-image | cellprofiler
+  features:
+    - soma_area
+    - perimeter
+    - circularity
+    - eccentricity
+    - solidity
+    - neurite_length
+    - branch_count
+    - neurite_density
+  threshold_method: "otsu"    # segmentation threshold: otsu | yen | li
+
+# ── Module 7 — Augmentation ────────────────────────────────────
+augmentation:
+  enabled: true
+  alpha: 0.05                 # noise magnitude = alpha * std(feature)
+  target_rows: 7000           # target total rows after augmentation
+  random_seed: 42
+
+# ── Module 8 — ML Training ─────────────────────────────────────
+ml:
+  random_seed: 42
+  test_size: 0.2              # fraction of samples held out for testing
+  cv_folds: 5                 # GroupKFold folds (grouped by sample_id)
+  models:
+    - xgboost
+    - random_forest
+    - svr
+  metrics:
+    - rmse
+    - mae
+    - r2
+
+# ── Module 9 — Interpretability ────────────────────────────────
+interpretability:
+  shap_models:
+    - xgboost
+    - random_forest
+  permutation_models:
+    - svr
+  n_repeats: 10               # permutation importance repetitions
+  top_n_features: 10          # how many features to show in plots
