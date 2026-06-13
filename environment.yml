@@ -20,5 +20,6 @@ dependencies:
   - pytest>=7.0.0
   - pip
   - pip:
+      - numpy==1.26.4
       - xgboost==2.0.3
       - shap==0.44.1
