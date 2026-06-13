@@ -21,7 +21,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import joblib
-from shap.explainers import Tree as TreeExplainer
+
 import streamlit as st
 from pathlib import Path
 
@@ -214,29 +214,26 @@ with res_col2:
     else:
         st.success('**Late-stage differentiation** (day 12–22)  \nSubstantial neurite development and morphological remodelling.')
 
-# SHAP explanation
-st.subheader('Step 5 — Feature Contribution (SHAP)')
+# Feature importance
+st.subheader('Step 5 — Feature Contribution')
 st.markdown(
-    'The bar chart shows how each Δ feature pushed the predicted day **higher** (red) or **lower** (blue).'
+    'The bar chart shows each feature\'s importance in the Random Forest model, '
+    'signed by the direction of change (red = pushes prediction higher, blue = lower).'
 )
 
-explainer = TreeExplainer(model)
-shap_vals = explainer.shap_values(X)[0]          # shape: (5,) for one sample
-base_val  = float(np.squeeze(explainer.expected_value))  # scalar — RF may return array
+importances = model.feature_importances_
+delta_vals  = np.array([deltas[c] for c in DELTA_COLS])
+signed_imp  = importances * np.sign(delta_vals)
 
 fig, ax = plt.subplots(figsize=(8, 3.6))
-bar_colors = ['#d9534f' if v > 0 else '#5b9bd5' for v in shap_vals]
+bar_colors = ['#d9534f' if v > 0 else '#5b9bd5' for v in signed_imp]
 y_pos = np.arange(len(DELTA_LABELS))
-ax.barh(y_pos, shap_vals, color=bar_colors, edgecolor='white', height=0.6)
+ax.barh(y_pos, signed_imp, color=bar_colors, edgecolor='white', height=0.6)
 ax.set_yticks(y_pos)
 ax.set_yticklabels(DELTA_LABELS, fontsize=9)
 ax.axvline(0, color='black', linewidth=0.8, linestyle='-')
-ax.set_xlabel('SHAP value  (positive → pushes day estimate higher)', fontsize=9)
-ax.set_title(
-    f'Individual Prediction Explanation\n'
-    f'Base prediction: {base_val:.1f} days  |  Final prediction: {pred_day:.1f} days',
-    fontsize=10,
-)
+ax.set_xlabel('Feature importance × direction of change', fontsize=9)
+ax.set_title('Feature Contribution to Prediction', fontsize=10)
 plt.tight_layout()
 st.pyplot(fig)
 plt.close(fig)
