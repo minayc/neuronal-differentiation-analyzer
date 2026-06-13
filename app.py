@@ -21,7 +21,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import joblib
-import shap
+from shap.explainers import Tree as TreeExplainer
 import streamlit as st
 from pathlib import Path
 
@@ -220,7 +220,7 @@ st.markdown(
     'The bar chart shows how each Δ feature pushed the predicted day **higher** (red) or **lower** (blue).'
 )
 
-explainer = shap.TreeExplainer(model)
+explainer = TreeExplainer(model)
 shap_vals = explainer.shap_values(X)[0]          # shape: (5,) for one sample
 base_val  = float(np.squeeze(explainer.expected_value))  # scalar — RF may return array
 
