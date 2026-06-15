@@ -29,14 +29,20 @@ from scipy import ndimage as ndi
 def load_image(path):
     """Load a PNG or TIFF file as a grayscale float32 array normalised to [0, 1].
 
-    Handles 16-bit TIFFs (common in phase contrast microscopy) correctly —
-    PIL preserves full bit depth, and min-max normalisation maps the full
-    dynamic range to [0, 1].
+    Reads the raw pixels so 16-bit TIFFs (common in phase-contrast microscopy)
+    keep their full dynamic range, then min-max normalises to [0, 1]. A blank
+    (constant) image returns all zeros so downstream steps never receive
+    out-of-range values.
     """
-    img = Image.open(str(path)).convert('L')
-    img_arr = np.array(img, dtype=np.float32)
-    if img_arr.max() > img_arr.min():
-        img_arr = (img_arr - img_arr.min()) / (img_arr.max() - img_arr.min())
+    img = Image.open(str(path))
+    img_arr = np.asarray(img).astype(np.float32)
+    if img_arr.ndim == 3:                       # RGB(A) -> grayscale
+        img_arr = img_arr[..., :3].mean(axis=2)
+    lo, hi = float(img_arr.min()), float(img_arr.max())
+    if hi > lo:
+        img_arr = (img_arr - lo) / (hi - lo)
+    else:
+        img_arr = np.zeros_like(img_arr)
     return img_arr
 
 def _preprocess_and_save(img_path, save_path, target_h, target_w):
